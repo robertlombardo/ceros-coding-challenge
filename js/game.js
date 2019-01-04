@@ -1,24 +1,14 @@
-$(document).ready(function() {
+import Images from 'img'
+import '../css/game.css'
 
-    var assets = {
-        'skierCrash' : 'img/skier_crash.png',
-        'skierLeft' : 'img/skier_left.png',
-        'skierLeftDown' : 'img/skier_left_down.png',
-        'skierDown' : 'img/skier_down.png',
-        'skierRightDown' : 'img/skier_right_down.png',
-        'skierRight' : 'img/skier_right.png',
-        'tree' : 'img/tree_1.png',
-        'treeCluster' : 'img/tree_cluster.png',
-        'rock1' : 'img/rock_1.png',
-        'rock2' : 'img/rock_2.png'
-    };
+$(document).ready(function() {
     var loadedAssets = {};
 
     var obstacleTypes = [
-        'tree',
-        'treeCluster',
-        'rock1',
-        'rock2'
+        'tree_1',
+        'tree_cluster',
+        'rock_1',
+        'rock_2'
     ];
 
     var obstacles = [];
@@ -70,22 +60,22 @@ $(document).ready(function() {
         var skierAssetName;
         switch(skierDirection) {
             case 0:
-                skierAssetName = 'skierCrash';
+                skierAssetName = 'skier_crash';
                 break;
             case 1:
-                skierAssetName = 'skierLeft';
+                skierAssetName = 'skier_left';
                 break;
             case 2:
-                skierAssetName = 'skierLeftDown';
+                skierAssetName = 'skier_left_down';
                 break;
             case 3:
-                skierAssetName = 'skierDown';
+                skierAssetName = 'skier_down';
                 break;
             case 4:
-                skierAssetName = 'skierRightDown';
+                skierAssetName = 'skier_right_down';
                 break;
             case 5:
-                skierAssetName = 'skierRight';
+                skierAssetName = 'skier_right';
                 break;
         }
 
@@ -95,6 +85,7 @@ $(document).ready(function() {
     var drawSkier = function() {
         var skierAssetName = getSkierAsset();
         var skierImage = loadedAssets[skierAssetName];
+
         var x = (gameWidth - skierImage.width) / 2;
         var y = (gameHeight - skierImage.height) / 2;
 
@@ -240,7 +231,6 @@ $(document).ready(function() {
     };
 
     var gameLoop = function() {
-
         ctx.save();
 
         // Retina support
@@ -262,25 +252,13 @@ $(document).ready(function() {
     };
 
     var loadAssets = function() {
-        var assetPromises = [];
-
-        _.each(assets, function(asset, assetName) {
+        for (let img_key in Images) {
             var assetImage = new Image();
-            var assetDeferred = new $.Deferred();
-
-            assetImage.onload = function() {
-                assetImage.width /= 2;
-                assetImage.height /= 2;
-
-                loadedAssets[assetName] = assetImage;
-                assetDeferred.resolve();
-            };
-            assetImage.src = asset;
-
-            assetPromises.push(assetDeferred.promise());
-        });
-
-        return $.when.apply($, assetPromises);
+            assetImage.src = Images[img_key];
+            assetImage.width /= 2;
+            assetImage.height /= 2;
+            loadedAssets[img_key] = assetImage;
+        };
     };
 
     var setupKeyhandler = function() {
@@ -323,11 +301,9 @@ $(document).ready(function() {
 
     var initGame = function() {
         setupKeyhandler();
-        loadAssets().then(function() {
-            placeInitialObstacles();
-
-            requestAnimationFrame(gameLoop);
-        });
+        loadAssets()
+        placeInitialObstacles()
+        requestAnimationFrame(gameLoop);
     };
 
     initGame(gameLoop);
