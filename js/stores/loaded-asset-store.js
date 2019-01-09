@@ -24,12 +24,21 @@ const LoadedAssetStore = {
 
 	        default        : throw `Invalid skier_direction (${skier_direction}) in LoadedAssetStore.getSkierAsset()`;
 	    }
+	},
+
+	test_private: {
+		loadAssets
 	}
-}
+};
 export default LoadedAssetStore;
 
 ActionDispatcher.once(ActionDispatcher.DOCUMENT_READY, () => {
-    for (let img_key in Images) {
+    loadAssets();
+    ActionDispatcher.dispatch(ActionDispatcher.ASSETS_LOADED, loadedAssets)
+});
+
+const loadAssets = () => {
+	for (let img_key in Images) {
         const assetImage = new Image();
         assetImage.src = Images[img_key];
         
@@ -38,6 +47,4 @@ ActionDispatcher.once(ActionDispatcher.DOCUMENT_READY, () => {
         
         loadedAssets[img_key] = assetImage;
     };
-
-    ActionDispatcher.dispatch(ActionDispatcher.ASSETS_LOADED, loadedAssets)
-});
+};

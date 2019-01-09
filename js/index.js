@@ -1,7 +1,7 @@
 import ActionDispatcher from './action-dispatcher';
 import GameStateStore   from './stores/game-state-store';
 import View             from './view';
-import './input-handler';
+import InputHandler     from './input-handler';
 
 $(document).ready(() => {
     const gameLoop = () => {

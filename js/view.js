@@ -18,6 +18,12 @@ const View = {
         drawObstacles();
 
         ctx.restore();
+	},
+
+	test_private: {
+		clearCanvas,
+		drawSkier,
+		drawObstacles
 	}
 }
 export default View;

@@ -30,6 +30,17 @@ const GameStateStore = {
             skier_model,
             all_obstacles
         });
+    },
+
+    test_private: {
+        placeInitialObstacles,
+        onSkierMoveInput,
+        moveSkier,
+        placeNewObstacle,
+        placeRandomObstacle,
+        calculateOpenPosition,
+        checkIfSkierHitObstacle,
+        intersectRect,
     }
 }
 export default GameStateStore;
@@ -43,7 +54,7 @@ ActionDispatcher.once(ActionDispatcher.ASSETS_LOADED, () => {
     ActionDispatcher.dispatch(ActionDispatcher.GAME_READY)
 })
 
-ActionDispatcher.on(ActionDispatcher.SKIER_MOVE, (new_direction) => {
+const onSkierMoveInput = (new_direction) => {
     const {NORTH, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST} = Constants.get().SKIER_DIRECTIONS;
     const {speed} = skier_model;
     const current_direction = skier_model.direction;
@@ -81,7 +92,8 @@ ActionDispatcher.on(ActionDispatcher.SKIER_MOVE, (new_direction) => {
             skier_model.direction = SOUTH;
             break;
     };
-});
+};
+ActionDispatcher.on(ActionDispatcher.SKIER_MOVE, onSkierMoveInput);
 
 const placeInitialObstacles = () => {
     const numberObstacles = Math.ceil(_.random(5, 7) * (game_width / 800) * (game_height / 500));
