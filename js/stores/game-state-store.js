@@ -1,18 +1,21 @@
-import ActionDispatcher from '../action-dispatcher';
-import LoadedAssetStore from './loaded-asset-store';
-import Constants        from './constants';
+import ActionDispatcher        from '../action-dispatcher';
+import LoadedAssetStore        from './loaded-asset-store';
+import Constants               from './constants';
+import {TweenMax, Expo}     from 'gsap';
 
 let game_width, game_height;
 
 const skier_model = {
-    x         : 0, 
-    y         : 0,
-    direction : 5,
-    speed     : 8
+    x           : 0, 
+    y           : 0,
+    direction   : 5,
+    speed       : 8,
+    jump_height : 1
 };
 
 let all_obstacles    = [];
 const OBSTACLE_TYPES = [
+    'jump_ramp',
     'tree_1',
     'tree_cluster',
     'rock_1',
@@ -41,6 +44,7 @@ const GameStateStore = {
         calculateOpenPosition,
         checkIfSkierHitObstacle,
         intersectRect,
+        doJump
     }
 }
 export default GameStateStore;
@@ -55,6 +59,8 @@ ActionDispatcher.once(ActionDispatcher.ASSETS_LOADED, () => {
 })
 
 const onSkierMoveInput = (new_direction) => {
+    if (skier_model.jump_height > 1) return
+
     const {NORTH, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST} = Constants.get().SKIER_DIRECTIONS;
     const {speed} = skier_model;
     const current_direction = skier_model.direction;
@@ -212,7 +218,9 @@ const calculateOpenPosition = (minX, maxX, minY, maxY) => {
 };
 
 const checkIfSkierHitObstacle = () => {
-    const skierImage     = LoadedAssetStore.getSkierAsset(skier_model.direction);
+    if(skier_model.jump_height > 1) return
+
+    const skierImage     = LoadedAssetStore.getSkierAsset(skier_model);
     const {loadedAssets} = LoadedAssetStore.get();
 
     const skierRect = {
@@ -222,7 +230,9 @@ const checkIfSkierHitObstacle = () => {
         bottom : skier_model.y + skierImage.height + game_height / 2
     };
 
-    const collision = _.find(all_obstacles, function(obstacle) {
+    let collided_obstacle_type;
+
+    const collision = _.find(all_obstacles, obstacle => {
         const obstacleImage = loadedAssets[obstacle.type];
         const obstacleRect = {
             left   : obstacle.x,
@@ -231,11 +241,16 @@ const checkIfSkierHitObstacle = () => {
             bottom : obstacle.y + obstacleImage.height
         };
 
-        return intersectRect(skierRect, obstacleRect);
+        if(intersectRect(skierRect, obstacleRect)) {
+            collided_obstacle_type = obstacle.type;
+            return true;
+        }
+        return false;
     });
 
     if(collision) {
-        skier_model.direction = Constants.get().SKIER_DIRECTIONS.NULL;
+        if (collided_obstacle_type == 'jump_ramp') doJump();
+        else skier_model.direction = Constants.get().SKIER_DIRECTIONS.NULL;
     }
 };
 
@@ -245,3 +260,20 @@ const intersectRect = (r1, r2) => {
         r2.top > r1.bottom ||
         r2.bottom < r1.top);
 };
+
+const doJump = () => {
+    skier_model.last_takeoff = new Date().getTime();
+
+    const {JUMP_AIR_TIME, MAX_JUMP_HEIGHT} = Constants.get();
+
+    TweenMax.to(
+        skier_model, 
+        JUMP_AIR_TIME/2, // divide by 2 because of yoyo
+        {
+            jump_height : MAX_JUMP_HEIGHT,
+            yoyo        : true,
+            repeat      : 1,
+            ease        : Expo.easeOut
+        }
+    );
+}

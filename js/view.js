@@ -14,8 +14,8 @@ const View = {
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
         clearCanvas();
-        drawSkier();
         drawObstacles();
+        drawSkier();
 
         ctx.restore();
 	},
@@ -49,12 +49,13 @@ const clearCanvas = () => {
 };
 
 const drawSkier = () => {
-    var skierImage = LoadedAssetStore.getSkierAsset(GameStateStore.get().skier_model.direction)
+    const {skier_model} = GameStateStore.get();
+    const skierImage    = LoadedAssetStore.getSkierAsset(skier_model);
 
-    var x = (gameWidth - skierImage.width) / 2;
-    var y = (gameHeight - skierImage.height) / 2;
+    const x = (gameWidth - skierImage.width) / 2;
+    const y = (gameHeight - skierImage.height) / 2;
 
-    ctx.drawImage(skierImage, x, y, skierImage.width, skierImage.height);
+    ctx.drawImage(skierImage, x, y, skierImage.width * skier_model.jump_height, skierImage.height * skier_model.jump_height);
 };
 
 const drawObstacles = () => {
@@ -62,9 +63,9 @@ const drawObstacles = () => {
     const {loadedAssets} = LoadedAssetStore.get();
 
     _.each(all_obstacles, obstacle => {
-        var obstacleImage = loadedAssets[obstacle.type];
-        var x = obstacle.x - skier_model.x - obstacleImage.width / 2;
-        var y = obstacle.y - skier_model.y - obstacleImage.height / 2;
+        const obstacleImage = loadedAssets[obstacle.type];
+        const x = obstacle.x - skier_model.x - obstacleImage.width / 2;
+        const y = obstacle.y - skier_model.y - obstacleImage.height / 2;
 
         if(x < -100 || x > gameWidth + 50 || y < -100 || y > gameHeight + 50) {
             return;
