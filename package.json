@@ -5,7 +5,8 @@
   "main": "web.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --config webpack.dev.js --mode development"
+    "start": "webpack-dev-server --config webpack.dev.js --mode development",
+    "build": "webpack --config webpack.prod.js --mode production"
   },
   "author": "dan.wash@ceros.com",
   "license": "",
@@ -13,8 +14,7 @@
     "node": "8.4.0"
   },
   "dependencies": {
-    "gsap": "^2.0.2",
-    "http-server": "^0.10.0"
+    "gsap": "^2.0.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
