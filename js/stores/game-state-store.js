@@ -1,23 +1,8 @@
+import ActionDispatcher from '../action-dispatcher';
+import LoadedAssetStore from './loaded-asset-store';
+import Constants        from './constants';
+
 let game_width, game_height;
-let loadedAssets; // TODO - keep in view layer
-let getSkierAsset; // TODO - keep in view layer
-
-const KEY_CODES = { // TODO - separate to input handler
-    LEFT_ARROW  : 37,
-    UP_ARROW    : 38,
-    RIGHT_ARROW : 39,
-    DOWN_ARROW  : 40
-};
-
-const SKIER_DIRECTIONS = {
-    NULL      : 0,
-    WEST      : 1,
-    SOUTHWEST : 2,
-    SOUTH     : 3,
-    SOUTHEAST : 4,
-    EAST      : 5,
-    NORTH     : 6 
-};   
 
 const skier_model = {
     x         : 0, 
@@ -35,18 +20,6 @@ const OBSTACLE_TYPES = [
 ];
 
 const GameStateStore = {
-    SKIER_DIRECTIONS,
-
-    init: (width, height, assets, getSkierAssetFunc) => {
-        game_width  = width;
-        game_height = height;
-        loadedAssets = assets;
-        getSkierAsset = getSkierAssetFunc;
-
-        setupKeyhandler();
-        placeInitialObstacles();
-    },
-
     update: () => {
         moveSkier();
         checkIfSkierHitObstacle();
@@ -59,50 +32,56 @@ const GameStateStore = {
         });
     }
 }
-module.exports = GameStateStore
+export default GameStateStore;
 
-const setupKeyhandler = () => {
-    $(window).keydown(event => {
-        const {direction, speed} = skier_model;
-        const {NORTH, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST} = SKIER_DIRECTIONS;
+ActionDispatcher.once(ActionDispatcher.ASSETS_LOADED, () => {
+    game_width  = window.innerWidth;
+    game_height = window.innerHeight;
 
-        switch(event.which) {
-            case KEY_CODES.LEFT_ARROW:
-                if([WEST, SOUTHWEST].includes(direction)) {
-                    // step west
-                    skier_model.direction = WEST;
-                    skier_model.x -= speed;
-                    placeNewObstacle(direction);
-                }
-                else skier_model.direction = SOUTHWEST;
-                break;
+    placeInitialObstacles();
 
-            case KEY_CODES.RIGHT_ARROW:
-                if([EAST, SOUTHEAST].includes(direction)) {
-                    // step east
-                    skier_model.direction = SKIER_DIRECTIONS.EAST;
-                    skier_model.x += speed;
-                    placeNewObstacle(direction);
-                }
-                else skier_model.direction = SOUTHEAST;
-                break;
+    ActionDispatcher.dispatch(ActionDispatcher.GAME_READY)
+})
 
-            case KEY_CODES.UP_ARROW:
-                if([EAST, WEST].includes(direction)) {
-                    // step up
-                    skier_model.y -= speed;
-                    placeNewObstacle(NORTH);
-                }
-                break;
+ActionDispatcher.on(ActionDispatcher.SKIER_MOVE, (new_direction) => {
+    const {NORTH, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST} = Constants.get().SKIER_DIRECTIONS;
+    const {speed} = skier_model;
+    const current_direction = skier_model.direction;
 
-            case KEY_CODES.DOWN_ARROW:
-                skier_model.direction = SOUTH;
-                break;
-        }
+    switch(new_direction) {
+        case WEST:
+            if([WEST, SOUTHWEST].includes(current_direction)) {
+                // step west
+                skier_model.direction = WEST;
+                skier_model.x -= speed;
+                placeNewObstacle(new_direction);
+            }
+            else skier_model.direction = SOUTHWEST;
+            break;
 
-        if(Object.values(KEY_CODES).includes(event.which)) event.preventDefault();
-    });
-};
+        case EAST:
+            if([EAST, SOUTHEAST].includes(current_direction)) {
+                // step east
+                skier_model.direction = EAST;
+                skier_model.x += speed;
+                placeNewObstacle(new_direction);
+            }
+            else skier_model.direction = SOUTHEAST;
+            break;
+
+        case NORTH:
+            if([EAST, WEST].includes(current_direction)) {
+                // step up
+                skier_model.y -= speed;
+                placeNewObstacle(NORTH);
+            }
+            break;
+
+        case SOUTH:
+            skier_model.direction = SOUTH;
+            break;
+    };
+});
 
 const placeInitialObstacles = () => {
     const numberObstacles = Math.ceil(_.random(5, 7) * (game_width / 800) * (game_height / 500));
@@ -116,6 +95,8 @@ const placeInitialObstacles = () => {
         placeRandomObstacle(minX, maxX, minY, maxY);
     }
 
+    const {loadedAssets} = LoadedAssetStore.get();
+
     all_obstacles = _.sortBy(all_obstacles, obstacle => {
         const obstacleImage = loadedAssets[obstacle.type];
         return obstacle.y + obstacleImage.height;
@@ -123,6 +104,7 @@ const placeInitialObstacles = () => {
 };
 
 const moveSkier = () => {
+    const {SKIER_DIRECTIONS} = Constants.get();
     const {direction, speed} = skier_model
     const DIAGONAL_SPEED = Math.round(speed / 1.4142)
 
@@ -154,6 +136,8 @@ const placeNewObstacle = direction => {
     var rightEdge  = skier_model.x + game_width;
     var topEdge    = skier_model.y;
     var bottomEdge = skier_model.y + game_height;
+
+    const {SKIER_DIRECTIONS} = Constants.get();
 
     switch(direction) {
         case SKIER_DIRECTIONS.WEST:
@@ -193,7 +177,7 @@ const placeRandomObstacle = (minX, maxX, minY, maxY) => {
         type : OBSTACLE_TYPES[obstacleIndex],
         x    : position.x,
         y    : position.y
-    })
+    });
 };
 
 const calculateOpenPosition = (minX, maxX, minY, maxY) => {
@@ -216,18 +200,19 @@ const calculateOpenPosition = (minX, maxX, minY, maxY) => {
 };
 
 const checkIfSkierHitObstacle = () => {
-    var skierAssetName = getSkierAsset();
-    var skierImage = loadedAssets[skierAssetName];
-    var skierRect = {
+    const skierImage     = LoadedAssetStore.getSkierAsset(skier_model.direction);
+    const {loadedAssets} = LoadedAssetStore.get();
+
+    const skierRect = {
         left   : skier_model.x + game_width / 2,
         right  : skier_model.x + skierImage.width + game_width / 2,
         top    : skier_model.y + skierImage.height - 5 + game_height / 2,
         bottom : skier_model.y + skierImage.height + game_height / 2
     };
 
-    var collision = _.find(all_obstacles, function(obstacle) {
-        var obstacleImage = loadedAssets[obstacle.type];
-        var obstacleRect = {
+    const collision = _.find(all_obstacles, function(obstacle) {
+        const obstacleImage = loadedAssets[obstacle.type];
+        const obstacleRect = {
             left   : obstacle.x,
             right  : obstacle.x + obstacleImage.width,
             top    : obstacle.y + obstacleImage.height - 5,
@@ -238,7 +223,7 @@ const checkIfSkierHitObstacle = () => {
     });
 
     if(collision) {
-        skier_model.direction = SKIER_DIRECTIONS.NULL;
+        skier_model.direction = Constants.get().SKIER_DIRECTIONS.NULL;
     }
 };
 
