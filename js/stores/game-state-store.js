@@ -20,7 +20,8 @@ const skier_model = {
     direction   : SKIER_DIRECTIONS.EAST,
     speed       : BASE_SKIER_SPEED,
     jump_height : 1,
-    can_jump    : true
+    can_jump    : true,
+    has_moved   : false
 };
 
 let all_obstacles    = [];
@@ -39,8 +40,11 @@ let jump_tween;
 
 const GameStateStore = Object.assign({}, EventEmitter.prototype, {
     // messages
-    JUMP_COMPLETE  : 'JUMP_COMPLETE',
-    NEW_BEST_SCORE : 'NEW_BEST_SCORE',
+    FIRST_SKIER_MOVE : 'FIRST_SKIER_MOVE',
+    SKIER_JUMP       : 'SKIER_JUMP',
+    JUMP_COMPLETE    : 'JUMP_COMPLETE',
+    SKIER_COLLISION  : 'SKIER_COLLISION',
+    NEW_BEST_SCORE   : 'NEW_BEST_SCORE',
 
     update: () => {
         moveSkier();
@@ -122,6 +126,11 @@ const onSkierMoveInput = (new_direction) => {
             skier_model.direction = SOUTH;
             break;
     };
+
+    if(!skier_model.has_moved) {
+        GameStateStore.emit(GameStateStore.FIRST_SKIER_MOVE);
+        skier_model.has_moved = true;
+    }
 };
 ActionDispatcher.on(ActionDispatcher.SKIER_MOVE, onSkierMoveInput);
 
@@ -270,6 +279,7 @@ const checkIfSkierHitObstacle = () => {
                 skier_model.speed = BASE_SKIER_SPEED;
                 score = 0;
                 if (jump_tween) jump_tween.kill();
+                GameStateStore.emit(GameStateStore.SKIER_COLLISION, obstacle)
             }
 
             return
@@ -304,6 +314,8 @@ const doJump = () => {
             onComplete  : onJumpComplete
         }
     );
+
+    GameStateStore.emit(GameStateStore.SKIER_JUMP);
 };
 
 const onJumpComplete = () => {

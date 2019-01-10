@@ -2,6 +2,7 @@ import ActionDispatcher from 'action-dispatcher';
 import {GameStateStore} from 'stores';
 import View             from 'view';
 import InputHandler     from 'input-handler';
+import 'audio'
 
 window.onload = () => {
     const gameLoop = () => {
