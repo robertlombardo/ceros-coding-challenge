@@ -32,14 +32,13 @@ ActionDispatcher.once(ActionDispatcher.DOCUMENT_READY, () => {
 	gameWidth  = window.innerWidth;
     gameHeight = window.innerHeight;
     
-    const canvas = $('<canvas></canvas>')
+    const canvas = $('#game_canvas')
         .attr('width', gameWidth * window.devicePixelRatio)
         .attr('height', gameHeight * window.devicePixelRatio)
         .css({
             width: gameWidth + 'px',
             height: gameHeight + 'px'
         });
-    $('body').append(canvas);
 
     ctx = canvas[0].getContext('2d');
 })

@@ -4,6 +4,7 @@ import View             from './view';
 import InputHandler     from './input-handler';
 
 $(document).ready(() => {
+
     const gameLoop = () => {
         GameStateStore.update();
         View.update();
