@@ -9,13 +9,13 @@ export default {
             },
 
             SKIER_DIRECTIONS: {
-                NULL      : 0,
-                WEST      : 1,
-                SOUTHWEST : 2,
-                SOUTH     : 3,
-                SOUTHEAST : 4,
-                EAST      : 5,
-                NORTH     : 6 
+                NORTH     : 'DIR_NORTH',
+                EAST      : 'DIR_EAST',
+                SOUTHEAST : 'DIR_SOUTHEAST',
+                SOUTH     : 'DIR_SOUTH',
+                SOUTHWEST : 'DIR_SOUTHWEST',
+                WEST      : 'DIR_WEST',
+                NULL      : 'DIR_NULL'
             },
 
             BASE_SKIER_SPEED : 8,    // px/second

@@ -1,9 +1,18 @@
 import '../css/game.css';
-import ActionDispatcher from './action-dispatcher'
-import GameStateStore   from './stores/game-state-store'
-import LoadedAssetStore from './stores/loaded-asset-store'
+import ActionDispatcher from 'action-dispatcher';
+import {
+    GameStateStore,
+    LoadedAssetStore
+} from 'stores';
+import {
+    TweenMax, 
+    Bounce,
+    Linear,
+    Power1,
+    Power3
+} from 'gsap';
 
-let ctx; // will store our canvas context
+let ctx; // stores our canvas drawing context
 let gameWidth, gameHeight;
 
 const View = {
@@ -18,20 +27,26 @@ const View = {
         drawSkier();
 
         ctx.restore();
+
+        const {score, best_score} = GameStateStore.get()
+        $('#score_val').html(Math.floor(score));
+        $('#best_score_val').html(Math.floor(best_score));
 	},
 
 	test_private: {
 		clearCanvas,
 		drawSkier,
-		drawObstacles
+		drawObstacles,
+        onJumpComplete,
 	}
 }
 export default View;
 
-ActionDispatcher.once(ActionDispatcher.DOCUMENT_READY, () => {
+ActionDispatcher.once(ActionDispatcher.WINDOW_ONLOAD, () => {
 	gameWidth  = window.innerWidth;
     gameHeight = window.innerHeight;
     
+    // set canvas dimensions
     const canvas = $('#game_canvas')
         .attr('width', gameWidth * window.devicePixelRatio)
         .attr('height', gameHeight * window.devicePixelRatio)
@@ -40,8 +55,43 @@ ActionDispatcher.once(ActionDispatcher.DOCUMENT_READY, () => {
             height: gameHeight + 'px'
         });
 
+    // create drawing context
     ctx = canvas[0].getContext('2d');
-})
+
+    // score panel intro tweens
+    TweenMax.to( '#score_panel', 0.9, {
+        left: '10px',
+        ease : Bounce.easeOut,
+        delay: 1.2
+    });
+    TweenMax.to('#score_panel', 0.9, {
+        alpha: 1,
+        ease: Linear.easeIn,
+        delay: 1.2,
+    });
+});
+
+const onJumpComplete = (jump_score) => {
+    TweenMax.killTweensOf('#jump_score_view');
+
+    // reset the jump score popup
+    $('#jump_score_view').css({
+        top: gameHeight/2 - 50, 
+        left: gameWidth/2 - 20 + Math.random()*40,
+        opacity: 1,
+        fontSize: 0
+    });
+
+    // set the text & tween it out
+    $('#jump_score_view').html(Math.floor(jump_score));
+    TweenMax.to('#jump_score_view', 1.8, {
+        alpha : 0,
+        top   : `${gameHeight/2 - 150}px`,
+        ease  : Power1.easeOut
+    });
+    TweenMax.to('#jump_score_view', 0.15, {fontSize: 32, ease: Power3.easeOut})
+};
+GameStateStore.on(GameStateStore.JUMP_COMPLETE, onJumpComplete)
 
 const clearCanvas = () => {
     ctx.clearRect(0, 0, gameWidth, gameHeight);

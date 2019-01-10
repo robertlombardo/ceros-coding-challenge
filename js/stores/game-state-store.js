@@ -1,4 +1,5 @@
-import ActionDispatcher  from '../action-dispatcher';
+import EventEmitter      from 'events';
+import ActionDispatcher  from 'action-dispatcher';
 import LoadedAssetStore  from './loaded-asset-store';
 import Constants         from './constants';
 import {TweenMax, Expo}  from 'gsap';
@@ -18,7 +19,8 @@ const skier_model = {
     y           : 0,
     direction   : SKIER_DIRECTIONS.EAST,
     speed       : BASE_SKIER_SPEED,
-    jump_height : 1
+    jump_height : 1,
+    can_jump    : true
 };
 
 let all_obstacles    = [];
@@ -30,16 +32,27 @@ const OBSTACLE_TYPES = [
     'rock_2'
 ];
 
-const GameStateStore = {
+let score = 0;
+let best_score = parseInt(localStorage.getItem('ceros_ski_best_score'), 10) || 0;
+
+let jump_tween;
+
+const GameStateStore = Object.assign({}, EventEmitter.prototype, {
+    // messages
+    JUMP_COMPLETE  : 'JUMP_COMPLETE',
+    NEW_BEST_SCORE : 'NEW_BEST_SCORE',
+
     update: () => {
         moveSkier();
-        checkIfSkierHitObstacle();
+        if(skier_model.direction != SKIER_DIRECTIONS.NULL) checkIfSkierHitObstacle();
     },
 
     get: () => {
         return Object.assign({}, {
             skier_model,
-            all_obstacles
+            all_obstacles,
+            score,
+            best_score
         });
     },
 
@@ -54,7 +67,7 @@ const GameStateStore = {
         intersectRect,
         doJump
     }
-}
+})
 export default GameStateStore;
 
 ActionDispatcher.once(ActionDispatcher.ASSETS_LOADED, () => {
@@ -67,7 +80,7 @@ ActionDispatcher.once(ActionDispatcher.ASSETS_LOADED, () => {
 })
 
 const onSkierMoveInput = (new_direction) => {
-    if (skier_model.jump_height > 1) return // can't control the skier's direction in midair
+    if(skier_model.jump_height > 1) return // can't control the skier's direction in mid-air
 
     const {NORTH, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST} = SKIER_DIRECTIONS;
     const {speed} = skier_model;
@@ -156,6 +169,7 @@ const moveSkier = () => {
     if([SOUTHWEST, SOUTH, SOUTHEAST].includes(direction)) {
         skier_model.speed *= ACCELLERATION;
         placeNewObstacle(direction);
+        addToScore(speed/100);
     }
 };
 
@@ -199,8 +213,7 @@ const placeNewObstacle = direction => {
 
 const placeRandomObstacle = (minX, maxX, minY, maxY) => {
     const obstacleIndex = _.random(0, OBSTACLE_TYPES.length - 1);
-
-    const position = calculateOpenPosition(minX, maxX, minY, maxY);
+    const position      = calculateOpenPosition(minX, maxX, minY, maxY);
 
     all_obstacles.push({
         type : OBSTACLE_TYPES[obstacleIndex],
@@ -210,22 +223,17 @@ const placeRandomObstacle = (minX, maxX, minY, maxY) => {
 };
 
 const calculateOpenPosition = (minX, maxX, minY, maxY) => {
-    var x = _.random(minX, maxX);
-    var y = _.random(minY, maxY);
+    const x = _.random(minX, maxX);
+    const y = _.random(minY, maxY);
 
-    var foundCollision = _.find(all_obstacles, obstacle => {
+    const foundCollision = _.find(all_obstacles, obstacle => {
         return x > (obstacle.x - 50) && x < (obstacle.x + 50) && y > (obstacle.y - 50) && y < (obstacle.y + 50);
     });
 
     if(foundCollision) {
         return calculateOpenPosition(minX, maxX, minY, maxY);
     }
-    else {
-        return {
-            x: x,
-            y: y
-        }
-    }
+    else return {x, y}
 };
 
 const checkIfSkierHitObstacle = () => {
@@ -241,9 +249,10 @@ const checkIfSkierHitObstacle = () => {
         bottom : skier_model.y + skierImage.height + game_height / 2
     };
 
-    let collided_obstacle_type;
+    let collided_obstacle_type = undefined;
 
-    const collision = _.find(all_obstacles, obstacle => {
+    // const collision = _.find(all_obstacles, obstacle => {
+    for (let obstacle of all_obstacles) {
         const obstacleImage = loadedAssets[obstacle.type];
         const obstacleRect = {
             left   : obstacle.x,
@@ -253,17 +262,17 @@ const checkIfSkierHitObstacle = () => {
         };
 
         if(intersectRect(skierRect, obstacleRect)) {
-            collided_obstacle_type = obstacle.type;
-            return true;
-        }
-        return false;
-    });
+            // we have a collision
+            if(obstacle.type == 'jump_ramp') doJump();
+            else {
+                // wipe out
+                skier_model.direction = SKIER_DIRECTIONS.NULL;
+                skier_model.speed = BASE_SKIER_SPEED;
+                score = 0;
+                if (jump_tween) jump_tween.kill();
+            }
 
-    if(collision) {
-        if (collided_obstacle_type == 'jump_ramp') doJump();
-        else {
-            skier_model.direction = SKIER_DIRECTIONS.NULL;
-            skier_model.speed = BASE_SKIER_SPEED;
+            return
         }
     }
 };
@@ -276,16 +285,40 @@ const intersectRect = (r1, r2) => {
 };
 
 const doJump = () => {
-    skier_model.last_takeoff = new Date().getTime();
+    if(!skier_model.can_jump) return
 
-    TweenMax.to(
+    skier_model.last_takeoff = new Date().getTime();
+    skier_model.can_jump = false
+    setTimeout(() => {skier_model.can_jump = true}, JUMP_AIR_TIME * 1000)
+
+    if(jump_tween) jump_tween.kill();
+
+    jump_tween = TweenMax.to(
         skier_model, 
         JUMP_AIR_TIME/2, // divide by 2 because of yoyo
         {
             jump_height : MAX_JUMP_HEIGHT,
             yoyo        : true,
             repeat      : 1,
-            ease        : Expo.easeOut
+            ease        : Expo.easeOut,
+            onComplete  : onJumpComplete
         }
     );
+};
+
+const onJumpComplete = () => {
+    const jump_score = Math.pow(skier_model.speed, 1.7);
+    addToScore(jump_score);
+    GameStateStore.emit(GameStateStore.JUMP_COMPLETE, jump_score)
 }
+
+
+const addToScore = (val) => {
+    score += val;
+
+    if(score > best_score) {
+        best_score = score;
+        GameStateStore.emit(GameStateStore.NEW_BEST_SCORE, best_score);
+        localStorage.setItem('ceros_ski_best_score', best_score)
+    }
+};

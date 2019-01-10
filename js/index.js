@@ -1,10 +1,9 @@
-import ActionDispatcher from './action-dispatcher';
-import GameStateStore   from './stores/game-state-store';
-import View             from './view';
-import InputHandler     from './input-handler';
+import ActionDispatcher from 'action-dispatcher';
+import {GameStateStore} from 'stores';
+import View             from 'view';
+import InputHandler     from 'input-handler';
 
-$(document).ready(() => {
-
+window.onload = () => {
     const gameLoop = () => {
         GameStateStore.update();
         View.update();
@@ -15,5 +14,5 @@ $(document).ready(() => {
         requestAnimationFrame(gameLoop);
     });
 
-    ActionDispatcher.dispatch(ActionDispatcher.DOCUMENT_READY);
-});
+    ActionDispatcher.dispatch(ActionDispatcher.WINDOW_ONLOAD);
+};

@@ -1,8 +1,8 @@
 import EventEmitter from 'events';
 
-const ActionDispatcher = Object.assign(EventEmitter.prototype, {
+const ActionDispatcher = Object.assign({}, EventEmitter.prototype, {
     // action handles
-    DOCUMENT_READY : 'DOCUMENT_READY',
+    WINDOW_ONLOAD  : 'WINDOW_ONLOAD',
     ASSETS_LOADED  : 'ASSETS_LOADED',
     GAME_READY     : 'GAME_READY',
     SKIER_MOVE     : 'SKIER_MOVE',

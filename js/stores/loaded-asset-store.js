@@ -1,4 +1,4 @@
-import ActionDispatcher   from '../action-dispatcher'
+import ActionDispatcher   from 'action-dispatcher'
 import Images             from 'img'
 import Constants          from './constants'
 
@@ -44,7 +44,7 @@ const LoadedAssetStore = {
 };
 export default LoadedAssetStore;
 
-ActionDispatcher.once(ActionDispatcher.DOCUMENT_READY, () => {
+ActionDispatcher.once(ActionDispatcher.WINDOW_ONLOAD, () => {
     loadAssets();
     ActionDispatcher.dispatch(ActionDispatcher.ASSETS_LOADED, loadedAssets)
 });

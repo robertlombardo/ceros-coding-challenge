@@ -1,5 +1,5 @@
-import ActionDispatcher from './action-dispatcher';
-import Constants        from './stores/constants';
+import ActionDispatcher from 'action-dispatcher';
+import {Constants}      from 'stores';
 
 const InputHandler = {
 	onKeydownEvent: event => {
@@ -23,6 +23,6 @@ const InputHandler = {
 }
 export default InputHandler
 
-ActionDispatcher.once(ActionDispatcher.DOCUMENT_READY, () => {
+ActionDispatcher.once(ActionDispatcher.WINDOW_ONLOAD, () => {
 	$(window).keydown(InputHandler.onKeydownEvent);
 });

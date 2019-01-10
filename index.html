@@ -9,6 +9,19 @@
 
 </head>
 <body>
-	<canvas id="game_canvas"></canvas>
+	<div class="game-root">
+		<canvas id="game_canvas"></canvas>
+		<div id="score_panel" class="score-panel">
+			<div class="score-subpanel">
+				<div class="score-label">Score:</div>
+				<div id="score_val" class="score-val">0</div>
+			</div>
+			<div class="best-score-subpanel">
+				<div class="best-score-label">Best:</div>
+				<div id="best_score_val" class="best-score-val">0</div>
+			</div>
+		</div>
+		<div id="jump_score_view" class="jump-score-view"></div>
+	</div>
 </body>
 </html>
