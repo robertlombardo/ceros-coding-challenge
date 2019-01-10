@@ -1,15 +1,23 @@
-import ActionDispatcher        from '../action-dispatcher';
-import LoadedAssetStore        from './loaded-asset-store';
-import Constants               from './constants';
-import {TweenMax, Expo}     from 'gsap';
+import ActionDispatcher  from '../action-dispatcher';
+import LoadedAssetStore  from './loaded-asset-store';
+import Constants         from './constants';
+import {TweenMax, Expo}  from 'gsap';
+
+const {
+    SKIER_DIRECTIONS,
+    BASE_SKIER_SPEED,
+    ACCELLERATION,
+    JUMP_AIR_TIME,
+    MAX_JUMP_HEIGHT
+} = Constants.get();
 
 let game_width, game_height;
 
 const skier_model = {
     x           : 0, 
     y           : 0,
-    direction   : 5,
-    speed       : 8,
+    direction   : SKIER_DIRECTIONS.EAST,
+    speed       : BASE_SKIER_SPEED,
     jump_height : 1
 };
 
@@ -59,9 +67,9 @@ ActionDispatcher.once(ActionDispatcher.ASSETS_LOADED, () => {
 })
 
 const onSkierMoveInput = (new_direction) => {
-    if (skier_model.jump_height > 1) return
+    if (skier_model.jump_height > 1) return // can't control the skier's direction in midair
 
-    const {NORTH, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST} = Constants.get().SKIER_DIRECTIONS;
+    const {NORTH, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST} = SKIER_DIRECTIONS;
     const {speed} = skier_model;
     const current_direction = skier_model.direction;
 
@@ -69,6 +77,7 @@ const onSkierMoveInput = (new_direction) => {
         case WEST:
             if([WEST, SOUTHWEST].includes(current_direction)) {
                 // step west
+                skier_model.speed = BASE_SKIER_SPEED;
                 skier_model.direction = WEST;
                 skier_model.x -= speed;
                 placeNewObstacle(new_direction);
@@ -79,6 +88,7 @@ const onSkierMoveInput = (new_direction) => {
         case EAST:
             if([EAST, SOUTHEAST].includes(current_direction)) {
                 // step east
+                skier_model.speed = BASE_SKIER_SPEED;
                 skier_model.direction = EAST;
                 skier_model.x += speed;
                 placeNewObstacle(new_direction);
@@ -89,6 +99,7 @@ const onSkierMoveInput = (new_direction) => {
         case NORTH:
             if([EAST, WEST].includes(current_direction)) {
                 // step up
+                skier_model.speed = BASE_SKIER_SPEED;
                 skier_model.y -= speed;
                 placeNewObstacle(NORTH);
             }
@@ -122,7 +133,6 @@ const placeInitialObstacles = () => {
 };
 
 const moveSkier = () => {
-    const {SKIER_DIRECTIONS} = Constants.get();
     const {direction, speed} = skier_model
     const DIAGONAL_SPEED = Math.round(speed / 1.4142)
 
@@ -143,7 +153,10 @@ const moveSkier = () => {
     }
 
     const {SOUTHWEST, SOUTH, SOUTHEAST} = SKIER_DIRECTIONS
-    if([SOUTHWEST, SOUTH, SOUTHEAST].includes(direction)) placeNewObstacle(direction);
+    if([SOUTHWEST, SOUTH, SOUTHEAST].includes(direction)) {
+        skier_model.speed *= ACCELLERATION;
+        placeNewObstacle(direction);
+    }
 };
 
 const placeNewObstacle = direction => {
@@ -154,8 +167,6 @@ const placeNewObstacle = direction => {
     var rightEdge  = skier_model.x + game_width;
     var topEdge    = skier_model.y;
     var bottomEdge = skier_model.y + game_height;
-
-    const {SKIER_DIRECTIONS} = Constants.get();
 
     switch(direction) {
         case SKIER_DIRECTIONS.WEST:
@@ -250,7 +261,10 @@ const checkIfSkierHitObstacle = () => {
 
     if(collision) {
         if (collided_obstacle_type == 'jump_ramp') doJump();
-        else skier_model.direction = Constants.get().SKIER_DIRECTIONS.NULL;
+        else {
+            skier_model.direction = SKIER_DIRECTIONS.NULL;
+            skier_model.speed = BASE_SKIER_SPEED;
+        }
     }
 };
 
@@ -263,8 +277,6 @@ const intersectRect = (r1, r2) => {
 
 const doJump = () => {
     skier_model.last_takeoff = new Date().getTime();
-
-    const {JUMP_AIR_TIME, MAX_JUMP_HEIGHT} = Constants.get();
 
     TweenMax.to(
         skier_model, 

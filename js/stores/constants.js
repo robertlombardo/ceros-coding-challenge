@@ -18,8 +18,10 @@ export default {
                 NORTH     : 6 
             },
 
-            JUMP_AIR_TIME  : 1.16, // seconds
-            MAX_JUMP_HEIGHT: 2.3   // arbitrary - used for scaling the skier img
+            BASE_SKIER_SPEED : 8,    // px/second
+            ACCELLERATION    : 1.0004,
+            JUMP_AIR_TIME    : 1.16, // seconds
+            MAX_JUMP_HEIGHT  : 2.3   // arbitrary - used for scaling the skier img
         });
     }
 };
