@@ -5,7 +5,7 @@ import InputHandler     from 'input-handler';
 import 'audio'
 
 window.onload = () => {
-    const gameLoop = () => {
+	const gameLoop = () => {
         GameStateStore.update();
         View.update();
         requestAnimationFrame(gameLoop);

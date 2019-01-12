@@ -1,9 +1,9 @@
-import Constants        from './constants';
-import GameStateStore   from './game-state-store';
-import LoadedAssetStore from './loaded-asset-store';
+import Constants      from './constants';
+import GameStateStore from './game-state-store';
+import AssetStore     from './asset-store';
 
 module.exports = {
 	Constants,
 	GameStateStore,
-	LoadedAssetStore
+	AssetStore
 }

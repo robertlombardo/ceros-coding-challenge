@@ -1,17 +1,24 @@
-import {GameStateStore} from 'stores';
-import {Howl}           from 'howler';
+import {
+	GameStateStore,
+	AssetStore,
+} from 'stores';
+import {Howl} from 'howler';
 
-let sounds;
+const sounds = {};
 
 GameStateStore.on(GameStateStore.FIRST_SKIER_MOVE, () => {
-	sounds = {
-		bgm       : new Howl({src:['assets/audio/BGM.mp3'], loop: true}),
-		whoosh    : new Howl({src:['assets/audio/SFX_whoosh.wav']}),
-		feet_dirt : new Howl({src:['assets/audio/SFX_feet_dirt.wav']}),
-		score     : new Howl({src:['assets/audio/SFX_score.wav']}),
-		body_fall : new Howl({src:['assets/audio/SFX_body_fall.wav']}),
-		fail      : new Howl({src:['assets/audio/SFX_fail.wav'], volume: 0.5})
-	};
+	// instantiate audio objects (must be in response to user input)
+	const {sound_paths} = AssetStore.get();
+	for(let key in sound_paths) {
+		const src = [sound_paths[key]]
+
+		switch(key) {
+			case 'fail' : sounds[key] = new Howl({src, volume: 0.5}); break;
+			case 'bgm'  : sounds[key] = new Howl({src, html5: true, loop: true}); break; // html5 flag allows playback to start before download completes
+			default     : sounds[key] = new Howl({src});
+		}
+
+	}
 
 	sounds.bgm.play();
 });

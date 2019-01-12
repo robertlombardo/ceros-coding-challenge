@@ -1,8 +1,8 @@
-import EventEmitter      from 'events';
-import ActionDispatcher  from 'action-dispatcher';
-import LoadedAssetStore  from './loaded-asset-store';
-import Constants         from './constants';
-import {TweenMax, Expo}  from 'gsap';
+import EventEmitter     from 'events';
+import ActionDispatcher from 'action-dispatcher';
+import AssetStore       from './asset-store';
+import Constants        from './constants';
+import {TweenMax, Expo} from 'gsap';
 
 const {
     SKIER_DIRECTIONS,
@@ -146,10 +146,10 @@ const placeInitialObstacles = () => {
         placeRandomObstacle(minX, maxX, minY, maxY);
     }
 
-    const {loadedAssets} = LoadedAssetStore.get();
+    const {img_assets} = AssetStore.get();
 
     all_obstacles = _.sortBy(all_obstacles, obstacle => {
-        const obstacleImage = loadedAssets[obstacle.type];
+        const obstacleImage = img_assets[obstacle.type];
         return obstacle.y + obstacleImage.height;
     });
 };
@@ -248,8 +248,8 @@ const calculateOpenPosition = (minX, maxX, minY, maxY) => {
 const checkIfSkierHitObstacle = () => {
     if(skier_model.jump_height > 1) return
 
-    const skierImage     = LoadedAssetStore.getSkierAsset(skier_model);
-    const {loadedAssets} = LoadedAssetStore.get();
+    const skierImage     = AssetStore.getSkierAsset(skier_model);
+    const {img_assets} = AssetStore.get();
 
     const skierRect = {
         left   : skier_model.x + game_width / 2,
@@ -262,7 +262,7 @@ const checkIfSkierHitObstacle = () => {
 
     // const collision = _.find(all_obstacles, obstacle => {
     for (let obstacle of all_obstacles) {
-        const obstacleImage = loadedAssets[obstacle.type];
+        const obstacleImage = img_assets[obstacle.type];
         const obstacleRect = {
             left   : obstacle.x,
             right  : obstacle.x + obstacleImage.width,

@@ -54,3 +54,11 @@ html, body {
 	text-shadow: 1px 2px 1px #3D2906;
 	opacity: 0; /*controlled by tweens*/
 }
+
+.progress-bar {
+	position: absolute;
+	top: calc(50% - 15px);
+	left: 15%;
+	width: 70%;
+	height: 30px;
+}

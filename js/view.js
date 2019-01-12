@@ -2,10 +2,11 @@ import '../css/game.css';
 import ActionDispatcher from 'action-dispatcher';
 import {
     GameStateStore,
-    LoadedAssetStore
+    AssetStore
 } from 'stores';
 import {
-    TweenMax, 
+    TweenMax,
+    Back,
     Bounce,
     Linear,
     Power1,
@@ -28,6 +29,7 @@ const View = {
 
         ctx.restore();
 
+        // update score display
         const {score, best_score} = GameStateStore.get()
         $('#score_val').html(Math.floor(score));
         $('#best_score_val').html(Math.floor(best_score));
@@ -56,10 +58,23 @@ ActionDispatcher.once(ActionDispatcher.WINDOW_ONLOAD, () => {
         });
 
     // create drawing context
-    ctx = canvas[0].getContext('2d');
+    ctx = canvas[0].getContext('2d');    
+});
 
-    // score panel intro tweens
-    TweenMax.to( '#score_panel', 0.9, {
+ActionDispatcher.on(ActionDispatcher.LOADING_PROGRESS, () => {
+    // update loading progress bar
+    $('#progress_bar').attr('value', AssetStore.get().loading_progress);
+})
+
+ActionDispatcher.on(ActionDispatcher.ASSETS_LOADED, () => {
+    // progress bar extro
+    TweenMax.to('#progress_bar', 0.75, {
+        left: '-70%',
+        ease: Back.easeIn
+    })
+
+    // score panel intro
+    TweenMax.to('#score_panel', 0.9, {
         left: '10px',
         ease : Bounce.easeOut,
         delay: 1.2
@@ -99,20 +114,20 @@ const clearCanvas = () => {
 
 const drawSkier = () => {
     const {skier_model} = GameStateStore.get();
-    const skierImage    = LoadedAssetStore.getSkierAsset(skier_model);
+    const skierImage    = AssetStore.getSkierAsset(skier_model);
 
     const x = (gameWidth - skierImage.width) / 2;
     const y = (gameHeight - skierImage.height) / 2;
 
-    ctx.drawImage(skierImage, x, y, skierImage.width * skier_model.jump_height, skierImage.height * skier_model.jump_height);
+    ctx.drawImage(skierImage, x, y, skierImage.width*skier_model.jump_height, skierImage.height*skier_model.jump_height);
 };
 
 const drawObstacles = () => {
     const {skier_model, all_obstacles} = GameStateStore.get();
-    const {loadedAssets} = LoadedAssetStore.get();
+    const {img_assets} = AssetStore.get();
 
     _.each(all_obstacles, obstacle => {
-        const obstacleImage = loadedAssets[obstacle.type];
+        const obstacleImage = img_assets[obstacle.type];
         const x = obstacle.x - skier_model.x - obstacleImage.width / 2;
         const y = obstacle.y - skier_model.y - obstacleImage.height / 2;
 

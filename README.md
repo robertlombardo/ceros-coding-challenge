@@ -13,6 +13,10 @@ technical ability and a chance for you to show us how much you give a shit (one 
 you're applying for. If anything is unclear, don't hesitate to reach out.
 
 Requirements:
+
+*TODO*
+  * loading bar
+
 * The base game that we've sent you is not what we would consider production ready code. In fact, it's pretty far from
   it. As part of our development cycle, all code must go through a review. We would like you to perform a review
   on the base code and fix/refactor it. Is the codebase maintainable, unit-testable, and scalable? What design patterns 

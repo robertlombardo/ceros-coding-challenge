@@ -59,7 +59,7 @@ module.exports = {
     resolve: {
         modules: [path.resolve(__dirname, './js'), 'node_modules'],
         alias: {
-            'img'    : path.join(__dirname, './img'),
+            'img'    : path.join(__dirname, './assets/img'),
             'stores' : path.join(__dirname, './js/stores')
         }
     },
