@@ -1,12 +1,12 @@
 import ActionDispatcher from 'action-dispatcher';
-import {GameStateStore} from 'stores';
+import {GameModel}      from 'stores';
 import View             from 'view';
 import InputHandler     from 'input-handler';
 import 'audio'
 
 window.onload = () => {
 	const gameLoop = () => {
-        GameStateStore.update();
+        GameModel.update();
         View.update();
         requestAnimationFrame(gameLoop);
     };

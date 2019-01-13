@@ -1,11 +1,11 @@
 import {
 	AssetStore,
-	GameStateStore,
+	GameModel,
 	Constants,
 } from 'stores';
 import assert from 'assert';
 
-describe('GameStateStore', function() {
+describe('GameModel', function() {
 	before(function() {
 		// mock up some things that normally rely on a browser window
 		global.window = {innerWidth: 500 + Math.random()*2000, innerHeight: 500 + Math.random()*2000};
@@ -38,18 +38,18 @@ describe('GameStateStore', function() {
 
 	describe('#calculateOpenPosition()', function() {
 		it('should return the specified position if there are no other obstacles', function() {
-			assert(GameStateStore.get().all_obstacles.length == 0);
-			const pos = GameStateStore.test_private.calculateOpenPosition(1, 1, 2, 2)
+			assert(GameModel.get().all_obstacles.length == 0);
+			const pos = GameModel.test_private.calculateOpenPosition(1, 1, 2, 2)
 			assert(pos.x === 1 && pos.y === 2);
 		});
 
 		it('should never return a position within OBSTACLE_MARGIN of an existing obstacle', function() {
 			const {OBSTACLE_MARGIN} = Constants.get();
 			const mock_obstacle     = {x: 500, y: 500, width: 10, height: 10};
-			GameStateStore.get().all_obstacles.push(mock_obstacle);
+			GameModel.get().all_obstacles.push(mock_obstacle);
 
 			for(let i = 0; i < 100; ++i) {
-				const pos = GameStateStore.test_private.calculateOpenPosition(0, 1000, 0, 1000);
+				const pos = GameModel.test_private.calculateOpenPosition(0, 1000, 0, 1000);
 				assert(
 		               pos.x >= (mock_obstacle.x + OBSTACLE_MARGIN) 
 		            || pos.x <= (mock_obstacle.x - OBSTACLE_MARGIN)
@@ -62,7 +62,7 @@ describe('GameStateStore', function() {
 
 	describe('#createRandomObstacle()', function() {
 		it('should have a valid obstacle type', function() {
-			const obstacle = GameStateStore.test_private.createRandomObstacle(0, window.innerWidth, 0, window.innerHeight);
+			const obstacle = GameModel.test_private.createRandomObstacle(0, window.innerWidth, 0, window.innerHeight);
 			assert(Constants.get().OBSTACLE_TYPES.includes(obstacle.type))
 		});
 	});
@@ -71,7 +71,7 @@ describe('GameStateStore', function() {
 	    let initial_obstacles;
 
 	    before(function() {
-			initial_obstacles = GameStateStore.test_private.getInitialObstacles();
+			initial_obstacles = GameModel.test_private.getInitialObstacles();
 		});
 
 	    it('should create Math.ceil(_.random(5, 7) * (window.innerWidth / 800) * (window.innerHeight / 500)); number of obstacles', function() {
@@ -93,7 +93,7 @@ describe('GameStateStore', function() {
   	});
 
   	describe('#placeNewObstacle()', function() {
-  		const {setGameDimensions, placeNewObstacle} = GameStateStore.test_private;
+  		const {setGameDimensions, placeNewObstacle} = GameModel.test_private;
   		const {WEST, SOUTHWEST, SOUTH, SOUTHEAST, EAST, NORTH} = Constants.get().SKIER_DIRECTIONS;
   		let leftEdge, rightEdge, topEdge, bottomEdge;
 
@@ -102,7 +102,7 @@ describe('GameStateStore', function() {
   		});
 
   		beforeEach(function() {
-  			const {skier_model, game_width, game_height} = GameStateStore.get();
+  			const {skier_model, game_width, game_height} = GameModel.get();
   			skier_model.x = Math.random()*game_width;
   			skier_model.y = Math.random()*game_height;
 
@@ -113,7 +113,7 @@ describe('GameStateStore', function() {
   		});
 
 		it('should only add an obstacle 1 out of every 8 calls', function() {
-			const {all_obstacles}      = GameStateStore.get();
+			const {all_obstacles}      = GameModel.get();
 			const num_obstacles_before = all_obstacles.length;
 			const num_calls            = 3000;
 
@@ -128,7 +128,7 @@ describe('GameStateStore', function() {
 
 		it('direction:WEST - should place 1 obstacle 50px beyond the left edge', function() {
 			placeNewObstacle(WEST, true);
-			const {x, y} = GameStateStore.get().all_obstacles.pop();
+			const {x, y} = GameModel.get().all_obstacles.pop();
 			
 			assert(
 				   x >= leftEdge - 50
@@ -141,7 +141,7 @@ describe('GameStateStore', function() {
 		it('direction:SOUTHWEST - should place 1 obstacle 50px beyond the left edge & 1 obstacle 50px beyond the bottom edge', function() {
 			placeNewObstacle(SOUTHWEST, true);
 
-			const {all_obstacles} = GameStateStore.get();
+			const {all_obstacles} = GameModel.get();
 			const bottom_obstacle = all_obstacles.pop();	
 			const left_obstacle   = all_obstacles.pop();
 
@@ -161,7 +161,7 @@ describe('GameStateStore', function() {
 
 		it('direction:SOUTH - should place 1 obstacle 50px beyond the bottom edge', function() {
 			placeNewObstacle(SOUTH, true);
-			const {x, y} = GameStateStore.get().all_obstacles.pop();
+			const {x, y} = GameModel.get().all_obstacles.pop();
 			
 			assert(
 				   x >= leftEdge
@@ -174,7 +174,7 @@ describe('GameStateStore', function() {
 		it('direction:SOUTHEAST - should place 1 obstacle 50px beyond the right edge & 1 obstacle 50px beyond the bottom edge', function() {
 			placeNewObstacle(SOUTHEAST, true);
 
-			const {all_obstacles} = GameStateStore.get();
+			const {all_obstacles} = GameModel.get();
 			const bottom_obstacle = all_obstacles.pop();	
 			const right_obstacle  = all_obstacles.pop();
 
@@ -194,7 +194,7 @@ describe('GameStateStore', function() {
 
 		it('direction:EAST - should place 1 obstacle 50px beyond the left edge', function() {
 			placeNewObstacle(EAST, true);
-			const {x, y} = GameStateStore.get().all_obstacles.pop();
+			const {x, y} = GameModel.get().all_obstacles.pop();
 			
 			assert(
 				   x >= rightEdge
@@ -206,7 +206,7 @@ describe('GameStateStore', function() {
 
 		it('direction:NORTH - should place 1 obstacle 50px beyond the bottom edge', function() {
 			placeNewObstacle(NORTH, true);
-			const {x, y} = GameStateStore.get().all_obstacles.pop();
+			const {x, y} = GameModel.get().all_obstacles.pop();
 			
 			assert(
 				   x >= leftEdge
@@ -218,35 +218,35 @@ describe('GameStateStore', function() {
 	});
 
   	describe('#addToScore()', function() {
-  		const {addToScore} = GameStateStore.test_private;
+  		const {addToScore} = GameModel.test_private;
 
 		it('should add the given value to the score', function() {
-			const score_before = GameStateStore.get().score;
+			const score_before = GameModel.get().score;
 			let num_to_add     = Math.random() * 1000;
 			
 			addToScore(num_to_add);
 			
-			assert(GameStateStore.get().score - num_to_add === score_before);
+			assert(GameModel.get().score - num_to_add === score_before);
 		});
 
 		it('should replace best_score if the new value is higher', function() {
-			const best_before = GameStateStore.get().best_score;
+			const best_before = GameModel.get().best_score;
 			addToScore(best_before + 1);
-			assert(GameStateStore.get().best_score > best_before);
+			assert(GameModel.get().best_score > best_before);
 		});
 
 		it('should NOT replace best_score if the new value is not higher', function() {
-			const best_before = GameStateStore.get().best_score;
+			const best_before = GameModel.get().best_score;
 			addToScore(-500);
-			assert(GameStateStore.get().best_score === best_before);
+			assert(GameModel.get().best_score === best_before);
 			addToScore(499);
-			assert(GameStateStore.get().best_score === best_before);
+			assert(GameModel.get().best_score === best_before);
 		});
 
 		it('should add best_score to localStorage whenever updated', function() {
-			const best_before = GameStateStore.get().best_score;
+			const best_before = GameModel.get().best_score;
 			addToScore(best_before + 1);
-			const new_best = GameStateStore.get().best_score;
+			const new_best = GameModel.get().best_score;
 			const from_local_storage = parseInt(localStorage.getItem(Constants.get().LOCAL_STORAGE_KEY), 10)
 			assert(Math.floor(new_best) === from_local_storage);
 		});

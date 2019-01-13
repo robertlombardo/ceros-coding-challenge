@@ -1,21 +1,21 @@
 ## Ceros Ski Code Challenge
-Thanks very much for reviewing my test! --Rob<br />
-rob@wakefield-studios.com<br />
-+1 510 912 9660 (note I'm on Seoul time)<br />
+Thanks very much for reviewing my test! --Rob
+rob@wakefield-studios.com
++1 510 912 9660 (note I'm on Seoul time)
 
 #### Run Locally:
-`npm install`<br />
-`npm start`<br />
+`npm install`
+`npm start`
 ... & then open up a browser to `localhost:8080`
 
 #### Run Tests:
 `npm test`
 
 #### Build Prod:
-`npm run build`<br />
+`npm run build`
 ... & then deploy the `/dist` folder somewhere.
 
-### Play Now!
+#### Play Now!
 [http://wakefield-studios.com/ceros-test](http://wakefield-studios.com/ceros-test)
 
 ### Notes from Rob

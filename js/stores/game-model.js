@@ -9,6 +9,7 @@ const {
     SKIER_DIRECTIONS,
     BASE_SKIER_SPEED,
     ACCELLERATION,
+    SKIER_STEP_DIST,
     JUMP_AIR_TIME,
     MAX_JUMP_HEIGHT,
     OBSTACLE_TYPES,
@@ -35,7 +36,7 @@ let best_score = parseInt(localStorage.getItem(LOCAL_STORAGE_KEY), 10) || 0;
 
 let jump_tween;
 
-const GameStateStore = Object.assign({}, EventEmitter.prototype, {
+const GameModel = Object.assign({}, EventEmitter.prototype, {
     // messages
     FIRST_SKIER_MOVE : 'FIRST_SKIER_MOVE',
     SKIER_JUMP       : 'SKIER_JUMP',
@@ -59,7 +60,7 @@ const GameStateStore = Object.assign({}, EventEmitter.prototype, {
         });
     }
 })
-export default GameStateStore;
+export default GameModel;
 
 ActionDispatcher.once(ActionDispatcher.ASSETS_LOADED, () => {
     setGameDimensions(window.innerWidth, window.innerHeight)
@@ -165,7 +166,7 @@ const addToScore = (val) => {
 
     if(score > best_score) {
         best_score = score;
-        GameStateStore.emit(GameStateStore.NEW_BEST_SCORE, best_score);
+        GameModel.emit(GameModel.NEW_BEST_SCORE, best_score);
         localStorage.setItem(LOCAL_STORAGE_KEY, best_score)
     }
 };
@@ -178,9 +179,9 @@ const intersectRect = (r1, r2) => {
 };
 
 const onJumpComplete = () => {
-    const jump_score = Math.pow(skier_model.speed, 1.7);
+    const jump_score = Math.pow(skier_model.speed/60, 1.7);
     addToScore(jump_score);
-    GameStateStore.emit(GameStateStore.JUMP_COMPLETE, jump_score)
+    GameModel.emit(GameModel.JUMP_COMPLETE, jump_score)
 };
 
 const doJump = () => {
@@ -204,7 +205,7 @@ const doJump = () => {
         }
     );
 
-    GameStateStore.emit(GameStateStore.SKIER_JUMP);
+    GameModel.emit(GameModel.SKIER_JUMP);
 };
 
 const checkIfSkierHitObstacle = () => {
@@ -241,7 +242,7 @@ const checkIfSkierHitObstacle = () => {
                 skier_model.speed = BASE_SKIER_SPEED;
                 score = 0;
                 if (jump_tween) jump_tween.kill();
-                GameStateStore.emit(GameStateStore.SKIER_COLLISION, obstacle)
+                GameModel.emit(GameModel.SKIER_COLLISION, obstacle)
             }
 
             return
@@ -249,31 +250,38 @@ const checkIfSkierHitObstacle = () => {
     }
 };
 
+let last_update = new Date().getTime();
+let now, delta, dist;
 const moveSkier = () => {
-    const {direction, speed} = skier_model
-    const DIAGONAL_SPEED = Math.round(speed / 1.4142)
+    const {direction, speed} = skier_model;
+
+    now                  = new Date().getTime();
+    delta                = (now - last_update) / 1000;
+    dist                 = speed * delta;
+    const DIAGONAL_DIST  = Math.round(dist / 1.4142);
+    last_update          = now;
 
     switch(direction) {
         case SKIER_DIRECTIONS.SOUTHWEST:
-            skier_model.x -= DIAGONAL_SPEED;
-            skier_model.y += DIAGONAL_SPEED;
+            skier_model.x -= DIAGONAL_DIST;
+            skier_model.y += DIAGONAL_DIST;
             break;
 
         case SKIER_DIRECTIONS.SOUTH:
-            skier_model.y += speed;
+            skier_model.y += dist;
             break;
 
         case SKIER_DIRECTIONS.SOUTHEAST:
-            skier_model.x += DIAGONAL_SPEED;
-            skier_model.y += DIAGONAL_SPEED;
+            skier_model.x += DIAGONAL_DIST;
+            skier_model.y += DIAGONAL_DIST;
             break;
     }
 
     const {SOUTHWEST, SOUTH, SOUTHEAST} = SKIER_DIRECTIONS
     if([SOUTHWEST, SOUTH, SOUTHEAST].includes(direction)) {
-        skier_model.speed *= ACCELLERATION;
+        skier_model.speed *= 1 + ACCELLERATION * delta;
         placeNewObstacle(direction);
-        addToScore(speed/100);
+        addToScore(dist/100);
     }
 };
 
@@ -290,7 +298,7 @@ const onSkierMoveInput = (new_direction) => {
                 // step west
                 skier_model.speed = BASE_SKIER_SPEED;
                 skier_model.direction = WEST;
-                skier_model.x -= speed;
+                skier_model.x -= SKIER_STEP_DIST;
                 placeNewObstacle(new_direction);
             }
             else skier_model.direction = SOUTHWEST;
@@ -301,7 +309,7 @@ const onSkierMoveInput = (new_direction) => {
                 // step east
                 skier_model.speed = BASE_SKIER_SPEED;
                 skier_model.direction = EAST;
-                skier_model.x += speed;
+                skier_model.x += SKIER_STEP_DIST;
                 placeNewObstacle(new_direction);
             }
             else skier_model.direction = SOUTHEAST;
@@ -311,7 +319,7 @@ const onSkierMoveInput = (new_direction) => {
             if([EAST, WEST].includes(current_direction)) {
                 // step up
                 skier_model.speed = BASE_SKIER_SPEED;
-                skier_model.y -= speed;
+                skier_model.y -= SKIER_STEP_DIST;
                 placeNewObstacle(NORTH);
             }
             break;
@@ -322,13 +330,13 @@ const onSkierMoveInput = (new_direction) => {
     };
 
     if(!skier_model.has_moved) {
-        GameStateStore.emit(GameStateStore.FIRST_SKIER_MOVE);
+        GameModel.emit(GameModel.FIRST_SKIER_MOVE);
         skier_model.has_moved = true;
     }
 };
 ActionDispatcher.on(ActionDispatcher.SKIER_MOVE, onSkierMoveInput);
 
-GameStateStore.test_private = {
+GameModel.test_private = {
     setGameDimensions,
     calculateOpenPosition,
     createRandomObstacle,

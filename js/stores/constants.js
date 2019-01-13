@@ -18,10 +18,11 @@ export default {
                 NULL      : 'DIR_NULL'
             },
 
-            BASE_SKIER_SPEED : 8,    // px/second
-            ACCELLERATION    : 1.0004,
-            JUMP_AIR_TIME    : 1.16, // seconds
-            MAX_JUMP_HEIGHT  : 2.3,  // arbitrary - used for scaling the skier img
+            BASE_SKIER_SPEED : 500,    // px/second
+            ACCELLERATION    : 0.019,  // will multiply speed by 1 + A*60 per second
+            SKIER_STEP_DIST  : 8,      // px
+            JUMP_AIR_TIME    : 1.16,   // seconds
+            MAX_JUMP_HEIGHT  : 2.3,    // arbitrary - used for scaling the skier img
 
             OBSTACLE_TYPES: [
                 'jump_ramp',

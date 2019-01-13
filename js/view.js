@@ -2,7 +2,7 @@ import '../css/game.css';
 import _                from 'lodash';
 import ActionDispatcher from 'action-dispatcher';
 import {
-    GameStateStore,
+    GameModel,
     AssetStore
 } from 'stores';
 import {
@@ -31,7 +31,7 @@ const View = {
         ctx.restore();
 
         // update score display
-        const {score, best_score} = GameStateStore.get()
+        const {score, best_score} = GameModel.get()
         $('#score_val').html(Math.floor(score));
         $('#best_score_val').html(Math.floor(best_score));
 	},
@@ -107,14 +107,14 @@ const onJumpComplete = (jump_score) => {
     });
     TweenMax.to('#jump_score_view', 0.15, {fontSize: 32, ease: Power3.easeOut})
 };
-GameStateStore.on(GameStateStore.JUMP_COMPLETE, onJumpComplete)
+GameModel.on(GameModel.JUMP_COMPLETE, onJumpComplete)
 
 const clearCanvas = () => {
     ctx.clearRect(0, 0, gameWidth, gameHeight);
 };
 
 const drawSkier = () => {
-    const {skier_model} = GameStateStore.get();
+    const {skier_model} = GameModel.get();
     const skierImage    = AssetStore.getSkierAsset(skier_model);
 
     const x = (gameWidth - skierImage.width) / 2;
@@ -124,7 +124,7 @@ const drawSkier = () => {
 };
 
 const drawObstacles = () => {
-    const {skier_model, all_obstacles} = GameStateStore.get();
+    const {skier_model, all_obstacles} = GameModel.get();
     const {img_assets} = AssetStore.get();
 
     _.each(all_obstacles, obstacle => {
