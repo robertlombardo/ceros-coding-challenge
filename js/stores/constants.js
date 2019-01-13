@@ -21,7 +21,18 @@ export default {
             BASE_SKIER_SPEED : 8,    // px/second
             ACCELLERATION    : 1.0004,
             JUMP_AIR_TIME    : 1.16, // seconds
-            MAX_JUMP_HEIGHT  : 2.3   // arbitrary - used for scaling the skier img
+            MAX_JUMP_HEIGHT  : 2.3,  // arbitrary - used for scaling the skier img
+
+            OBSTACLE_TYPES: [
+                'jump_ramp',
+                'tree_1',
+                'tree_cluster',
+                'rock_1',
+                'rock_2'
+            ],
+            OBSTACLE_MARGIN: 50, // px
+
+            LOCAL_STORAGE_KEY: 'ceros_ski_best_score'
         });
     }
 };

@@ -1,4 +1,5 @@
 import '../css/game.css';
+import _                from 'lodash';
 import ActionDispatcher from 'action-dispatcher';
 import {
     GameStateStore,
