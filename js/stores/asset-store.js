@@ -1,5 +1,6 @@
-import ActionDispatcher from 'action-dispatcher'
-import Constants        from './constants'
+import EventEmitter     from 'events';
+import ActionDispatcher from 'action-dispatcher';
+import Constants        from './constants';
 
 const img_paths = {
 	jump_ramp    	 : 'assets/img/jump_ramp.png',
@@ -32,7 +33,11 @@ const sound_paths = {
 let loading_progress = 0;
 const img_assets     = {};
 
-const AssetStore = {
+const AssetStore = Object.assign({}, EventEmitter.prototype, {
+    // messages
+    LOADING_PROGRESS : 'LOADING_PROGRESS',
+    ASSETS_LOADED    : 'ASSETS_LOADED',
+
 	get: () => {
 		return Object.assign({}, {
 			loading_progress,
@@ -66,12 +71,8 @@ const AssetStore = {
 		        default        : throw `Invalid skier_model.direction (${skier_direction}) in AssetStore.getSkierAsset()`;
 		    }
 		}
-	},
-
-	test_private: {
-		onAssetsLoaded
 	}
-};
+});
 export default AssetStore;
 
 ActionDispatcher.once(ActionDispatcher.WINDOW_ONLOAD, () => {
@@ -79,7 +80,7 @@ ActionDispatcher.once(ActionDispatcher.WINDOW_ONLOAD, () => {
 	
 	queue.on('progress', (event) => {
 		loading_progress = event.progress;
-		ActionDispatcher.dispatch(ActionDispatcher.LOADING_PROGRESS, loading_progress)
+		AssetStore.emit(AssetStore.LOADING_PROGRESS, loading_progress)
 	})
 	
 	queue.on('complete', onAssetsLoaded);
@@ -107,5 +108,9 @@ const onAssetsLoaded = () => {
         img_assets[img_key] = assetImage;
     };
 
-    ActionDispatcher.dispatch(ActionDispatcher.ASSETS_LOADED, img_assets);
+    AssetStore.emit(AssetStore.ASSETS_LOADED, img_assets);
+};
+
+AssetStore.test_private = {
+	onAssetsLoaded
 };

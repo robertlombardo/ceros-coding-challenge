@@ -62,12 +62,12 @@ ActionDispatcher.once(ActionDispatcher.WINDOW_ONLOAD, () => {
     ctx = canvas[0].getContext('2d');    
 });
 
-ActionDispatcher.on(ActionDispatcher.LOADING_PROGRESS, () => {
+AssetStore.on(AssetStore.LOADING_PROGRESS, () => {
     // update loading progress bar
     $('#progress_bar').attr('value', AssetStore.get().loading_progress);
 })
 
-ActionDispatcher.on(ActionDispatcher.ASSETS_LOADED, () => {
+AssetStore.on(AssetStore.ASSETS_LOADED, () => {
     // progress bar extro
     TweenMax.to('#progress_bar', 0.75, {
         left: '-70%',

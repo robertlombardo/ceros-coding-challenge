@@ -11,7 +11,7 @@ window.onload = () => {
         requestAnimationFrame(gameLoop);
     };
 
-    ActionDispatcher.once(ActionDispatcher.GAME_READY, () => {
+    GameModel.once(GameModel.GAME_READY, () => {
         requestAnimationFrame(gameLoop);
     });
 

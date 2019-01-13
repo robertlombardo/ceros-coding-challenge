@@ -38,6 +38,7 @@ let jump_tween;
 
 const GameModel = Object.assign({}, EventEmitter.prototype, {
     // messages
+    GAME_READY       : 'GAME_READY',
     FIRST_SKIER_MOVE : 'FIRST_SKIER_MOVE',
     SKIER_JUMP       : 'SKIER_JUMP',
     JUMP_COMPLETE    : 'JUMP_COMPLETE',
@@ -62,12 +63,12 @@ const GameModel = Object.assign({}, EventEmitter.prototype, {
 })
 export default GameModel;
 
-ActionDispatcher.once(ActionDispatcher.ASSETS_LOADED, () => {
+AssetStore.once(AssetStore.ASSETS_LOADED, () => {
     setGameDimensions(window.innerWidth, window.innerHeight)
 
     all_obstacles = getInitialObstacles();
 
-    ActionDispatcher.dispatch(ActionDispatcher.GAME_READY);
+    GameModel.emit(GameModel.GAME_READY);
 });
 
 const setGameDimensions = (w, h) => {

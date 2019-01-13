@@ -1,26 +1,26 @@
 ## Ceros Ski Code Challenge
-Thanks very much for reviewing my test! --Rob
-rob@wakefield-studios.com
-+1 510 912 9660 (note I'm on Seoul time)
+###### Thanks very much for reviewing my test! --Rob
+ * rob@wakefield-studios.com
+ * +1 510 912 9660 (note I'm on Seoul time)
 
 #### Run Locally:
-`npm install`
-`npm start`
-... & then open up a browser to `localhost:8080`
+ * `npm install`
+ * `npm start`
+ * ... & then open up a browser to `localhost:8080`
 
 #### Run Tests:
-`npm test`
+ * `npm test`
 
 #### Build Prod:
-`npm run build`
-... & then deploy the `/dist` folder somewhere.
+ * `npm run build`
+ * ... & then deploy the `/dist` folder somewhere.
 
 #### Play Now!
 [http://wakefield-studios.com/ceros-test](http://wakefield-studios.com/ceros-test)
 
 ### Notes from Rob
-* Apologies for the delay getting this back - between receiving the test & now I had an emergency involving some AirBnB fraud that left me homeless for Jan., a lot of back & forth with my current employer about going remote for them, ultimately relocating back to Korea & then coming down with a massive cold that took me out for 3 days. I think I've spent maybe 15~20 hours on this total.
-* I stopped writing unit tests about halfway thru covering the game-state-store - it was becoming a bit of a timesink & I figured this is an exercise not a real project, and what I did is probably enough to demonstrate that I can set up a framework & write tests. Hope that's OK.
+ * Apologies for the delay getting this back - between receiving the test & now I had an emergency involving some AirBnB fraud that left me homeless for Jan., a lot of back & forth with my current employer about going remote for them, ultimately relocating back to Korea & then coming down with a massive cold that took me out for 3 days. I think I've spent maybe 15~20 hours on this total.
+ * I stopped writing unit tests about halfway thru covering game-model.js - it was becoming a bit of a timesink & I figured for an exercise what I did is probably enough to demonstrate that I can set up a framework & write tests. Hope that's OK.
 
 #### Features Added
   * Jump
@@ -34,7 +34,8 @@ rob@wakefield-studios.com
   * Separation of concerns (entry point & core loop, game state, view, input, etc.)
   * A (pretty minimalistic version of a) Flux pattern
   * Testing framework (Mocha)
-  * Some unit test coverage for game-state-store.js
+  * Some unit test coverage for game-model.js
+  * Decoupled skier speed/acceleration mechanics from animation framerate
 
 #### TODO
   * Add browser caching for assets at deploy target
