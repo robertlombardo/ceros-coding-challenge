@@ -210,7 +210,7 @@ const doJump = () => {
 const checkIfSkierHitObstacle = () => {
     if(skier_model.jump_height > 1) return
 
-    const skierImage     = AssetStore.getSkierAsset(skier_model);
+    const skierImage   = AssetStore.getSkierAsset(skier_model);
     const {img_assets} = AssetStore.get();
 
     const skierRect = {
@@ -220,9 +220,8 @@ const checkIfSkierHitObstacle = () => {
         bottom : skier_model.y + skierImage.height + game_height / 2
     };
 
-    let collided_obstacle_type = undefined;
+    const {SOUTHWEST, SOUTH, SOUTHEAST} = SKIER_DIRECTIONS;
 
-    // const collision = _.find(all_obstacles, obstacle => {
     for (let obstacle of all_obstacles) {
         const obstacleImage = img_assets[obstacle.type];
         const obstacleRect = {
@@ -234,8 +233,9 @@ const checkIfSkierHitObstacle = () => {
 
         if(intersectRect(skierRect, obstacleRect)) {
             // we have a collision
-            if(obstacle.type == 'jump_ramp') doJump();
-            else {
+            if(obstacle.type == 'jump_ramp' && [SOUTHWEST, SOUTH, SOUTHEAST].includes(skier_model.direction)) {
+                doJump();
+            } else {
                 // wipe out
                 skier_model.direction = SKIER_DIRECTIONS.NULL;
                 skier_model.speed = BASE_SKIER_SPEED;
