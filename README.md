@@ -1,5 +1,51 @@
-# Ceros Ski Code Challenge
+## Ceros Ski Code Challenge
+Thanks very much for reviewing my test! --Rob<br />
+rob@wakefield-studios.com<br />
++1 510 912 9660 (note I'm on Seoul time)<br />
 
+#### Run Locally:
+`npm install`<br />
+`npm start`<br />
+... & then open up a browser to `localhost:8080`
+
+#### Run Tests:
+`npm test`
+
+#### Build Prod:
+`npm run build`<br />
+... & then deploy the `/dist` folder somewhere.
+
+### Play Now!
+[http://wakefield-studios.com/ceros-test](http://wakefield-studios.com/ceros-test)
+
+### Notes from Rob
+* Apologies for the delay getting this back - between receiving the test & now I had an emergency involving some AirBnB fraud that left me homeless for Jan., a lot of back & forth with my current employer about going remote for them, ultimately relocating back to Korea & then coming down with a massive cold that took me out for 3 days. I think I've spent maybe 15~20 hours on this total.
+* I stopped writing unit tests about halfway thru covering the game-state-store - it was becoming a bit of a timesink & I figured this is an exercise not a real project, and what I did is probably enough to demonstrate that I can set up a framework & write tests. Hope that's OK.
+
+#### Features Added
+  * Jump
+  * Acceleration
+  * Score / Best Score (localStorage)
+  * Audio
+  * Loading Progress Bar
+
+#### Codebase Improvements
+  * Webpack module bundling (dev, prod & test configs)
+  * Separation of concerns (entry point & core loop, game state, view, input, etc.)
+  * A (pretty minimalistic version of a) Flux pattern
+  * Testing framework (Mocha)
+  * Some unit test coverage for game-state-store.js
+
+#### TODO
+  * Add browser caching for assets at deploy target
+  * convert .wav audio assets to .mp3 for file size
+  * Rhino
+  * Game reset
+  * Pick up machine gun & shoot Rhino
+  * Pick up flame thrower & burn trees
+  * Complete test coverage
+
+## Test Description
 Welcome to the Ceros Code Challenge - Ski Edition!
 
 For this challenge, we have included some base code for Ceros Ski, our version of the classic Windows game SkiFree. If
@@ -13,10 +59,6 @@ technical ability and a chance for you to show us how much you give a shit (one 
 you're applying for. If anything is unclear, don't hesitate to reach out.
 
 Requirements:
-
-*TODO*
-  * loading bar
-
 * The base game that we've sent you is not what we would consider production ready code. In fact, it's pretty far from
   it. As part of our development cycle, all code must go through a review. We would like you to perform a review
   on the base code and fix/refactor it. Is the codebase maintainable, unit-testable, and scalable? What design patterns 
